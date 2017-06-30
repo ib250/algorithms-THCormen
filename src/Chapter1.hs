@@ -1,6 +1,12 @@
 module Chapter1 where
 
-import Data.List (insert) -- a cheat... but sooo worth it
+-- given an element and a sorted list,
+-- insert the element in the correct place
+insert :: Ord a => a -> [a] -> [a]
+insert this [] = [this] 
+insert this (first:rest)
+    | this <= first = this:first:rest
+    | this >  first = first:insert this rest
 
 
 -- a fold implimentation of insertion sort
@@ -46,6 +52,7 @@ inversions this = let indices = [0..(length this - 1)]
                             , j <- indices
                             , i < j
                             , this !! i > this !! j]
+
 
 -- the classical binary search
 -- NB assumes the list is sorted
