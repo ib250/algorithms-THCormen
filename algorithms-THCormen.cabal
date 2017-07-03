@@ -35,6 +35,7 @@ test-suite lib-test
   other-modules:       Spec
   main-is:             Main.hs
   build-depends:       base
+                     , containers
                      , algorithms-THCormen
                      , hspec
                      , QuickCheck

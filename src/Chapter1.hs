@@ -1,5 +1,7 @@
 module Chapter1 where
 
+import Control.Applicative
+
 -- given an element and a sorted list,
 -- insert the element in the correct place
 insert :: Ord a => a -> [a] -> [a]
@@ -55,11 +57,12 @@ inversions this = let indices = [0..(length this - 1)]
 
 
 -- the classical binary search
--- NB assumes the list is sorted
-binarySearch :: Eq a => [a] -> a -> Maybe Int
-binarySearch = findIt . splitList
-
-    where splitList this = let midway = length this `div` 2
-                           in (take midway this, drop midway this, midway)
-
-          findIt = undefined
+binarySearch :: (Ord a, Eq a) => [a] -> a -> Maybe Int
+binarySearch [] _ = Nothing
+binarySearch list target =
+    let index = length list `quot` 2
+        midelem = list !! index
+    in case compare midelem target of
+        EQ -> Just index
+        GT -> binarySearch (take index list) target
+        _  -> ((index+1)+) <$> binarySearch (drop (index+1) list) target

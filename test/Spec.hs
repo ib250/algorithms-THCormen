@@ -11,11 +11,13 @@ sortSpec :: ([Integer] -> [Integer]) -> [Integer] -> Bool
 sortSpec f list = 
     List.sort list == f list
 
+
 -- a special case for the insertion sort variant
 sortSpecOrdering :: [Integer] -> Bool
 sortSpecOrdering list =
     List.sortBy (flip compare) list ==
     C1.insertionSortOrder LT list
+
 
 -- searching spec
 searchSpec :: ([Integer] -> Integer -> Maybe Int) ->
@@ -31,11 +33,25 @@ hornersRuleSpec list val =
     in sum [ai * val ^ i | (ai, i) <- list `zip` indices]
        == C1.hornersRule list val
 
+
 -- inversions of a sequence
 inversionsSpec :: [Integer] -> Bool
 inversionsSpec list = let pair = C1.inversions list
                       in and $ fmap (isInversion list) pair
     where isInversion this (i,j) = this !! i > this !! j
+
+
+-- for binary search we need to test slightly differently
+-- cannot really rely on Data.List.elemIndex ?? I think
+doBinarySearch :: [Integer] -> Integer -> Bool
+doBinarySearch this that =
+    case mindex of
+        Nothing -> that `notElem` this
+        Just n  -> that == (_sorted !! n)
+
+    where _sorted = List.sort this
+          mindex  = C1.binarySearch _sorted that
+
 
 main :: IO ()
 main = hspec $ do
@@ -54,13 +70,13 @@ main = hspec $ do
 
     describe ("\nFind a random Integer from a random [Integer] not necessarily contained"
              ++"\n Using resursive find in sequence :") $
-        it "\t should be functionally equivalent to List.findIndex" $
+        it "\t should be functionally equivalent to List.elemIndex" $
             quickCheck $ searchSpec C1.findInSequence
 
     describe ("\nFind a random Integer from a random [Integer] not necessarily contained"
              ++"\n Using binary search :") $
-        it "\t should be functionally equivalent to List.findIndex" $
-            quickCheck $ searchSpec C1.binarySearch
+        it "\t should be functionally equivalent to List.elemIndex" $
+            quickCheck doBinarySearch
 
     describe "\nHorners rule over integers :" $
         it "\t the evaluation should be identical to the obvious sum" $
